@@ -31,20 +31,20 @@ const Toast: React.FC<ToastProps> = ({ message, type, onClose }) => {
   }, [onClose]);
 
   return (
-    <div className={`fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm ${
+    <div className={`fixed top-4 right-4 z-50 p-3 sm:p-4 rounded-lg shadow-lg max-w-xs sm:max-w-sm ${
       type === 'success' ? 'bg-green-100 border border-green-400 text-green-700' : 'bg-red-100 border border-red-400 text-red-700'
     }`}>
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           {type === 'success' ? (
-            <CheckCircle size={20} className="mr-2" />
+            <CheckCircle size={18} className="mr-2 flex-shrink-0" />
           ) : (
-            <AlertCircle size={20} className="mr-2" />
+            <AlertCircle size={18} className="mr-2 flex-shrink-0" />
           )}
-          <span className="text-sm font-medium">{message}</span>
+          <span className="text-xs sm:text-sm font-medium">{message}</span>
         </div>
-        <button onClick={onClose} className="ml-2 hover:opacity-70">
-          <X size={16} />
+        <button onClick={onClose} className="ml-2 hover:opacity-70 flex-shrink-0">
+          <X size={14} />
         </button>
       </div>
     </div>
@@ -150,26 +150,28 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      {/* Mobile-Responsive Header */}
+      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center">
-              <Package className="h-8 w-8 text-blue-600 mr-3" />
-              <h1 className="text-2xl font-bold text-gray-900">
-                {import.meta.env.VITE_APP_NAME || 'Product Inventory'}
+          <div className="flex justify-between items-center h-14 sm:h-16">
+            {/* Logo and Title */}
+            <div className="flex items-center min-w-0 flex-1">
+              <Package className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600 mr-2 sm:mr-3 flex-shrink-0" />
+              <h1 className="text-lg sm:text-2xl font-bold text-gray-900 truncate">
+                {import.meta.env.VITE_APP_NAME?.split(' ').slice(0, 2).join(' ') || 'Product Inventory'}
               </h1>
             </div>
             
-            <div className="flex items-center gap-3">
+            {/* Desktop Navigation */}
+            <div className="hidden sm:flex items-center gap-3">
               <button
                 onClick={handleRefresh}
                 disabled={loading}
-                className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors rounded-lg hover:bg-gray-100"
                 title="Refresh products"
               >
                 <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
-                Refresh
+                <span className="hidden md:inline">Refresh</span>
               </button>
               
               <button
@@ -177,7 +179,28 @@ const Dashboard: React.FC = () => {
                 className="btn-primary flex items-center gap-2"
               >
                 <Plus className="h-5 w-5" />
-                Add Product
+                <span className="hidden md:inline">Add Product</span>
+                <span className="md:hidden">Add</span>
+              </button>
+            </div>
+
+            {/* Mobile Navigation */}
+            <div className="flex sm:hidden items-center gap-2">
+              <button
+                onClick={handleRefresh}
+                disabled={loading}
+                className="p-2 text-gray-600 hover:text-gray-800 transition-colors rounded-lg hover:bg-gray-100"
+                title="Refresh products"
+              >
+                <RefreshCw className={`h-5 w-5 ${loading ? 'animate-spin' : ''}`} />
+              </button>
+              
+              <button
+                onClick={handleAddNew}
+                className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                title="Add Product"
+              >
+                <Plus className="h-5 w-5" />
               </button>
             </div>
           </div>
@@ -185,46 +208,46 @@ const Dashboard: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+        {/* Mobile-Responsive Stats Cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Products</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Total</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.total}</p>
               </div>
-              <Package className="h-8 w-8 text-blue-600" />
+              <Package className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
             </div>
           </div>
           
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">In Stock</p>
-                <p className="text-2xl font-bold text-green-600">{stats.inStock}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">In Stock</p>
+                <p className="text-xl sm:text-2xl font-bold text-green-600">{stats.inStock}</p>
               </div>
-              <CheckCircle className="h-8 w-8 text-green-600" />
+              <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 text-green-600" />
             </div>
           </div>
           
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md border border-gray-200">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Out of Stock</p>
-                <p className="text-2xl font-bold text-red-600">{stats.outOfStock}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Out of Stock</p>
+                <p className="text-xl sm:text-2xl font-bold text-red-600">{stats.outOfStock}</p>
               </div>
-              <AlertCircle className="h-8 w-8 text-red-600" />
+              <AlertCircle className="h-6 w-6 sm:h-8 sm:w-8 text-red-600" />
             </div>
           </div>
           
-          <div className="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+          <div className="bg-white p-4 sm:p-6 rounded-lg shadow-md border border-gray-200 col-span-2 lg:col-span-1">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-600">Total Value</p>
-                <p className="text-2xl font-bold text-gray-900">${stats.totalValue.toFixed(2)}</p>
+                <p className="text-xs sm:text-sm font-medium text-gray-600">Total Value</p>
+                <p className="text-lg sm:text-2xl font-bold text-gray-900">${stats.totalValue.toFixed(2)}</p>
               </div>
-              <Package className="h-8 w-8 text-blue-600" />
+              <Package className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
             </div>
           </div>
         </div>
