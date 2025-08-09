@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { Product, ProductState, ProductFormData } from '../types/Product';
+import { ProductState, ProductFormData } from '../types/Product';
 import { productApi } from '../utils/api';
 
 // Load state from localStorage

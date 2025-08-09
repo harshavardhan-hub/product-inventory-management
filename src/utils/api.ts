@@ -77,7 +77,7 @@ export const productApi = {
   createProduct: async (productData: ProductFormData): Promise<ApiResponse> => {
     try {
       // Since FakeStore API doesn't actually create products, we simulate it
-      const response = await api.post('/products', productData);
+      await api.post('/products', productData);
       
       // Return success response with mock data
       return {
