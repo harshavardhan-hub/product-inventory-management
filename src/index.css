@@ -4,10 +4,10 @@
 
 @layer base {
   * {
-    @apply border-border;
+    box-sizing: border-box;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-gray-50 text-gray-900;
   }
 }
 
@@ -118,13 +118,5 @@
   
   .btn-primary {
     @apply border-2 border-blue-900;
-  }
-}
-
-/* Dark mode support (if needed later) */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg-background: 0 0% 3.9%;
-    --text-foreground: 0 0% 98%;
   }
 }
