@@ -12,11 +12,11 @@ interface ProductFormProps {
 const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit, onCancel, loading = false }) => {
   const [formData, setFormData] = React.useState<ProductFormData>({
     title: product?.title || '',
-    price: product?.price || 0,              // ✅ FIXED: Changed from '' to 0
+    price: product?.price || 0,              // ✅ FIXED: Number instead of string
     description: product?.description || '',
     category: product?.category || '',
     image: product?.image || '',
-    stock: product?.stock || 0,              // ✅ FIXED: Changed from '' to 0
+    stock: product?.stock || 0,              // ✅ FIXED: Number instead of string
   });
 
   const [errors, setErrors] = React.useState<Partial<ProductFormData>>({});
