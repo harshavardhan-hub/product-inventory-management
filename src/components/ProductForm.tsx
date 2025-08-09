@@ -10,20 +10,20 @@ interface ProductFormProps {
 }
 
 const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit, onCancel, loading = false }) => {
-  // ✅ FIXED: Ensure price and stock are initialized as numbers
-  const [formData, setFormData] = React.useState<ProductFormData>({
+  // ✅ ROBUST INITIALIZATION - Guaranteed to be numbers
+  const [formData, setFormData] = React.useState<ProductFormData>(() => ({
     title: product?.title || '',
-    price: typeof product?.price === 'number' ? product.price : 0,
+    price: Number(product?.price) || 0,
     description: product?.description || '',
     category: product?.category || '',
     image: product?.image || '',
-    stock: typeof product?.stock === 'number' ? product.stock : 0,
-  });
+    stock: Number(product?.stock) || 0,
+  }));
 
-  const [errors, setErrors] = React.useState<Partial<ProductFormData>>({});
+  const [errors, setErrors] = React.useState<Partial<Record<keyof ProductFormData, string>>>({});
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<ProductFormData> = {};
+    const newErrors: Partial<Record<keyof ProductFormData, string>> = {};
 
     if (!formData.title.trim()) newErrors.title = 'Title is required';
     if (formData.price <= 0) newErrors.price = 'Price must be greater than 0';
@@ -57,7 +57,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit, onCancel, 
     }
   };
 
-  // ✅ FIXED: Proper type handling in handleChange
+  // ✅ SAFE TYPE HANDLING
   const handleChange = (field: keyof ProductFormData, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
@@ -110,8 +110,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit, onCancel, 
             id="price"
             value={formData.price}
             onChange={(e) => {
-              const value = parseFloat(e.target.value);
-              handleChange('price', isNaN(value) ? 0 : value);
+              const numValue = parseFloat(e.target.value);
+              handleChange('price', isNaN(numValue) ? 0 : numValue);
             }}
             className={`input-field ${errors.price ? 'border-red-500 focus:ring-red-500' : ''}`}
             placeholder="0.00"
@@ -130,8 +130,8 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit, onCancel, 
             id="stock"
             value={formData.stock}
             onChange={(e) => {
-              const value = parseInt(e.target.value);
-              handleChange('stock', isNaN(value) ? 0 : value);
+              const numValue = parseInt(e.target.value, 10);
+              handleChange('stock', isNaN(numValue) ? 0 : numValue);
             }}
             className={`input-field ${errors.stock ? 'border-red-500 focus:ring-red-500' : ''}`}
             placeholder="0"
