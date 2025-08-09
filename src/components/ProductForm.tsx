@@ -10,13 +10,14 @@ interface ProductFormProps {
 }
 
 const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit, onCancel, loading = false }) => {
+  // ✅ FIXED: Ensure price and stock are initialized as numbers
   const [formData, setFormData] = React.useState<ProductFormData>({
     title: product?.title || '',
-    price: product?.price || 0,              // ✅ FIXED: Number instead of string
+    price: typeof product?.price === 'number' ? product.price : 0,
     description: product?.description || '',
     category: product?.category || '',
     image: product?.image || '',
-    stock: product?.stock || 0,              // ✅ FIXED: Number instead of string
+    stock: typeof product?.stock === 'number' ? product.stock : 0,
   });
 
   const [errors, setErrors] = React.useState<Partial<ProductFormData>>({});
@@ -56,6 +57,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit, onCancel, 
     }
   };
 
+  // ✅ FIXED: Proper type handling in handleChange
   const handleChange = (field: keyof ProductFormData, value: string | number) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
@@ -107,7 +109,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit, onCancel, 
             type="number"
             id="price"
             value={formData.price}
-            onChange={(e) => handleChange('price', parseFloat(e.target.value) || 0)}
+            onChange={(e) => {
+              const value = parseFloat(e.target.value);
+              handleChange('price', isNaN(value) ? 0 : value);
+            }}
             className={`input-field ${errors.price ? 'border-red-500 focus:ring-red-500' : ''}`}
             placeholder="0.00"
             min="0"
@@ -124,7 +129,10 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit, onCancel, 
             type="number"
             id="stock"
             value={formData.stock}
-            onChange={(e) => handleChange('stock', parseInt(e.target.value) || 0)}
+            onChange={(e) => {
+              const value = parseInt(e.target.value);
+              handleChange('stock', isNaN(value) ? 0 : value);
+            }}
             className={`input-field ${errors.stock ? 'border-red-500 focus:ring-red-500' : ''}`}
             placeholder="0"
             min="0"
