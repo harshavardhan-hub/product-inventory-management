@@ -125,10 +125,20 @@ const Dashboard: React.FC = () => {
     setEditingProduct(null);
   };
 
-  // Handle refresh
-  const handleRefresh = () => {
-    dispatch(fetchProducts());
-    setToast({ message: 'Products refreshed!', type: 'success' });
+  // Handle refresh - updated to maintain local data
+  const handleRefresh = async () => {
+    try {
+      await dispatch(fetchProducts()).unwrap();
+      setToast({ 
+        message: 'Products refreshed! Your added products are preserved.', 
+        type: 'success' 
+      });
+    } catch (error) {
+      setToast({ 
+        message: 'Refresh failed, but local products are still available.', 
+        type: 'error' 
+      });
+    }
   };
 
   // Clear error
@@ -139,6 +149,7 @@ const Dashboard: React.FC = () => {
     }
   }, [error, dispatch]);
 
+  // Calculate statistics
   const stats = React.useMemo(() => {
     const total = filteredProducts.length;
     const inStock = filteredProducts.filter(p => p.inStock).length;

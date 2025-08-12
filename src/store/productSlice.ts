@@ -18,7 +18,7 @@ const loadStateFromStorage = (): Partial<ProductState> => {
 const saveStateToStorage = (state: ProductState) => {
   try {
     const serializedState = JSON.stringify({
-      products: state.products,
+      // Don't save products to prevent conflicts with API
       searchTerm: state.searchTerm,
       selectedCategory: state.selectedCategory,
       sortBy: state.sortBy,
@@ -49,6 +49,7 @@ export const fetchProducts = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       const products = await productApi.getAllProducts();
+      console.log(`✅ Fetched ${products.length} products (including local ones)`);
       return products;
     } catch (error) {
       return rejectWithValue(error instanceof Error ? error.message : 'Failed to fetch products');
@@ -61,6 +62,7 @@ export const createProduct = createAsyncThunk(
   async (productData: ProductFormData, { rejectWithValue }) => {
     try {
       const response = await productApi.createProduct(productData);
+      console.log('✅ Product created and saved locally');
       return response.data;
     } catch (error) {
       return rejectWithValue(error instanceof Error ? error.message : 'Failed to create product');
@@ -166,7 +168,19 @@ const productSlice = createSlice({
         product.stock = action.payload.stock;
         product.inStock = action.payload.inStock;
         filterAndSortProducts(state);
-        saveStateToStorage(state);
+        
+        // Also update in localStorage if it's a local product
+        try {
+          const localProducts = JSON.parse(localStorage.getItem('local_products') || '[]');
+          const localProduct = localProducts.find((p: any) => p.id === action.payload.id);
+          if (localProduct) {
+            localProduct.stock = action.payload.stock;
+            localProduct.inStock = action.payload.inStock;
+            localStorage.setItem('local_products', JSON.stringify(localProducts));
+          }
+        } catch (error) {
+          console.warn('Failed to update local product stock:', error);
+        }
       }
     },
   },

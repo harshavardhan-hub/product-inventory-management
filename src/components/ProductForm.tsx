@@ -10,27 +10,34 @@ interface ProductFormProps {
 }
 
 const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit, onCancel, loading = false }) => {
-  // ✅ ROBUST INITIALIZATION - Guaranteed to be numbers
-  const [formData, setFormData] = React.useState<ProductFormData>(() => ({
+  // ✅ FIXED: Allow string values during editing, convert to numbers only when needed
+  const [formData, setFormData] = React.useState({
     title: product?.title || '',
-    price: Number(product?.price) || 0,
+    price: product?.price?.toString() || '',        // ✅ Keep as string during editing
     description: product?.description || '',
     category: product?.category || '',
     image: product?.image || '',
-    stock: Number(product?.stock) || 0,
-  }));
+    stock: product?.stock?.toString() || '',        // ✅ Keep as string during editing
+  });
 
-  const [errors, setErrors] = React.useState<Partial<Record<keyof ProductFormData, string>>>({});
+  const [errors, setErrors] = React.useState<Partial<Record<string, string>>>({});
 
   const validateForm = (): boolean => {
-    const newErrors: Partial<Record<keyof ProductFormData, string>> = {};
+    const newErrors: Partial<Record<string, string>> = {};
 
     if (!formData.title.trim()) newErrors.title = 'Title is required';
-    if (formData.price <= 0) newErrors.price = 'Price must be greater than 0';
+    
+    // Convert to numbers for validation
+    const priceNum = parseFloat(formData.price);
+    if (isNaN(priceNum) || priceNum <= 0) newErrors.price = 'Price must be greater than 0';
+    
     if (!formData.description.trim()) newErrors.description = 'Description is required';
     if (!formData.category.trim()) newErrors.category = 'Category is required';
     if (!formData.image.trim()) newErrors.image = 'Image URL is required';
-    if (formData.stock < 0) newErrors.stock = 'Stock cannot be negative';
+    
+    // Convert to numbers for validation
+    const stockNum = parseInt(formData.stock, 10);
+    if (isNaN(stockNum) || stockNum < 0) newErrors.stock = 'Stock cannot be negative';
 
     // Validate image URL format
     if (formData.image && !isValidUrl(formData.image)) {
@@ -53,12 +60,21 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit, onCancel, 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      onSubmit(formData);
+      // Convert to proper types for submission
+      const submitData: ProductFormData = {
+        title: formData.title,
+        price: parseFloat(formData.price) || 0,
+        description: formData.description,
+        category: formData.category,
+        image: formData.image,
+        stock: parseInt(formData.stock, 10) || 0,
+      };
+      onSubmit(submitData);
     }
   };
 
-  // ✅ SAFE TYPE HANDLING
-  const handleChange = (field: keyof ProductFormData, value: string | number) => {
+  // ✅ SIMPLE CHANGE HANDLER - No forced number conversion
+  const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     // Clear error when user starts typing
     if (errors[field]) {
@@ -109,10 +125,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit, onCancel, 
             type="number"
             id="price"
             value={formData.price}
-            onChange={(e) => {
-              const numValue = parseFloat(e.target.value);
-              handleChange('price', isNaN(numValue) ? 0 : numValue);
-            }}
+            onChange={(e) => handleChange('price', e.target.value)}
             className={`input-field ${errors.price ? 'border-red-500 focus:ring-red-500' : ''}`}
             placeholder="0.00"
             min="0"
@@ -129,10 +142,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ product, onSubmit, onCancel, 
             type="number"
             id="stock"
             value={formData.stock}
-            onChange={(e) => {
-              const numValue = parseInt(e.target.value, 10);
-              handleChange('stock', isNaN(numValue) ? 0 : numValue);
-            }}
+            onChange={(e) => handleChange('stock', e.target.value)}
             className={`input-field ${errors.stock ? 'border-red-500 focus:ring-red-500' : ''}`}
             placeholder="0"
             min="0"
